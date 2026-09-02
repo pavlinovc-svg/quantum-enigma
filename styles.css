@@ -276,6 +276,37 @@ textarea {
   gap: 0.7rem;
 }
 
+.card.recommended {
+  border-color: var(--olive);
+  box-shadow: 0 0 0 1px var(--olive-dim);
+}
+
+.rec-badge {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid var(--olive);
+  background: var(--olive);
+  color: var(--bg);
+  padding: 0.28rem 0.5rem;
+}
+
+.why {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.45rem 0.55rem;
+  background: rgba(138, 160, 117, 0.05);
+  border: 1px solid var(--line);
+}
+
+.why-line {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
 .card-top {
   display: flex;
   justify-content: space-between;
