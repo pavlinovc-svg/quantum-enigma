@@ -21,7 +21,7 @@
  *
  * Candidate energies (also diagonal):
  *   E_i = −( w_t·truth + w_o·outcome + w_r·restraint + w_m·mission + w_k·risk )
- * Scores are integers 0–5 entered by the human.
+ * Scores are integers 0–5 entered by the human or the client-side scorer.
  *
  * Default weights:     0.30, 0.25, 0.20, 0.15, 0.10
  * Friend-thread mode:  restraint → 0.35, mission → 0.05;

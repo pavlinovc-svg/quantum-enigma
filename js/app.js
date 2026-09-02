@@ -26,7 +26,9 @@
       id: "c" + i + "-" + Math.random().toString(36).slice(2, 7),
       text: "",
       tag: null,
+      slot: null,
       scores: { truth: 0, outcome: 0, restraint: 0, mission: 0, risk: 0 },
+      why: null,
     };
   }
 
@@ -48,14 +50,22 @@
     });
   }
 
-  function analysis() {
+  function channelLabel() {
     var ch = $("channel");
-    var channelLabel = ch.options[ch.selectedIndex].text;
-    return QEHeuristic.restateAsk(
+    return ch.options[ch.selectedIndex].text;
+  }
+
+  function analysis() {
+    return QEHeuristic.analyze(
       $("ciphertext").value,
       $("relationship").value,
-      channelLabel
+      channelLabel()
     );
+  }
+
+  function recommendedCandidate() {
+    if (!state.result || state.dirty) return null;
+    return state.result.list[state.result.classical.index] || null;
   }
 
   function hasTag(name) {
@@ -166,6 +176,16 @@
       var tags = document.createElement("div");
       tags.className = "tags";
 
+      var rec = recommendedCandidate();
+      var isRec = rec && rec.id === c.id;
+      if (isRec) {
+        card.classList.add("recommended");
+        var badge = document.createElement("span");
+        badge.className = "rec-badge";
+        badge.textContent = "Recommended to send";
+        tags.appendChild(badge);
+      }
+
       var bRef = document.createElement("button");
       bRef.type = "button";
       bRef.className = "tag";
@@ -238,6 +258,8 @@
           btn.addEventListener("click", function (val) {
             return function () {
               c.scores[axis] = val;
+              if (!c.why) c.why = {};
+              c.why[axis] = "you set this score";
               dirty();
               renderCandidates();
               renderAudit();
@@ -254,6 +276,20 @@
       en.className = "energy-line";
       en.textContent = "E = " + e.toFixed(3);
 
+      var whyBox = null;
+      if (c.why) {
+        whyBox = document.createElement("div");
+        whyBox.className = "why";
+        AXES.forEach(function (axis) {
+          if (!c.why[axis]) return;
+          var line = document.createElement("div");
+          line.className = "why-line";
+          line.textContent = axis + " " + c.scores[axis] + " — " + c.why[axis];
+          whyBox.appendChild(line);
+        });
+        if (!whyBox.childNodes.length) whyBox = null;
+      }
+
       if (QEHeuristic.looksLikeDraftOrPrompt(c.text) && !$("asked-draft").checked) {
         var warn = document.createElement("p");
         warn.className = "err";
@@ -263,11 +299,13 @@
         card.appendChild(ta);
         card.appendChild(warn);
         card.appendChild(scores);
+        if (whyBox) card.appendChild(whyBox);
         card.appendChild(en);
       } else {
         card.appendChild(top);
         card.appendChild(ta);
         card.appendChild(scores);
+        if (whyBox) card.appendChild(whyBox);
         card.appendChild(en);
       }
 
@@ -285,6 +323,7 @@
     $("add-candidate").disabled = state.candidates.length >= 6;
     $("slot-note").textContent =
       state.candidates.length + " slots · 4 required · 6 maximum";
+    updateDraftGate();
   }
 
   function renderAudit() {
@@ -389,6 +428,7 @@
     var rec = recommendedIndex(r);
     var win = r.list[r.classical.index];
     $("classical-line").textContent =
+      "Recommended to send — " +
       bitLabel(indexInAll(win)) +
       "  ·  E = " +
       r.classical.energy.toFixed(3) +
@@ -397,6 +437,7 @@
       "”  ·  rotor C(two replies) = " +
       r.twoHotCost.toFixed(3) +
       " (illegal, high)";
+    renderCandidates();
 
     var dis = $("disagree-line");
     if (r.disagree) {
@@ -537,6 +578,70 @@
     }
   }
 
+  function updateDraftGate() {
+    var has = !!$("ciphertext").value.trim();
+    $("draft-score-recommend").disabled = !has;
+    if (!has) {
+      $("draft-lock").textContent =
+        "Paste an incoming message, then one click drafts, scores, and runs interference. Confirm is still yours.";
+    }
+  }
+
+  function applyDrafted(list) {
+    state.candidates = list.map(function (d, i) {
+      return {
+        id: "c" + i + "-" + Math.random().toString(36).slice(2, 7),
+        text: d.text,
+        tag: d.tag,
+        slot: d.slot,
+        scores: {
+          truth: d.scores.truth,
+          outcome: d.scores.outcome,
+          restraint: d.scores.restraint,
+          mission: d.scores.mission,
+          risk: d.scores.risk,
+        },
+        why: {
+          truth: d.why.truth,
+          outcome: d.why.outcome,
+          restraint: d.why.restraint,
+          mission: d.why.mission,
+          risk: d.why.risk,
+        },
+      };
+    });
+  }
+
+  function draftScoreRecommend() {
+    var a = analysis();
+    if (!a.raw) return;
+    $("asked-draft").checked = !!a.askedForDraft;
+    var packed = QEDraft.draftAndScore(
+      $("ciphertext").value,
+      $("relationship").value,
+      channelLabel(),
+      { friendMode: friendMode() }
+    );
+    if (packed.candidates.length < 4) return;
+    applyDrafted(packed.candidates);
+    state.dirty = true;
+    state.result = null;
+    state.collapsed = null;
+    $("interfere-results").hidden = true;
+    $("collapse-box").hidden = true;
+    $("copy-out").disabled = true;
+    $("measure-err").hidden = true;
+    renderRestate();
+    renderWeights();
+    renderCandidates();
+    renderAudit();
+    runInterfere();
+    $("draft-lock").textContent =
+      "Drafted " +
+      packed.candidates.length +
+      " replies, scored them, and ran interference. Edit anything. Confirm is still yours.";
+  }
+
   function syncChannelFriend() {
     if ($("channel").value === "friend DM") {
       $("friend-mode").checked = true;
@@ -554,6 +659,7 @@
         dirty();
         renderAudit();
         renderCandidates();
+        updateDraftGate();
       });
     });
     $("channel").addEventListener("change", function () {
@@ -582,6 +688,7 @@
       renderCandidates();
       renderAudit();
     });
+    $("draft-score-recommend").addEventListener("click", draftScoreRecommend);
     $("run-interfere").addEventListener("click", runInterfere);
     $("confirm-collapse").addEventListener("click", collapse);
     $("copy-out").addEventListener("click", copyOut);
@@ -598,4 +705,5 @@
   renderWeights();
   renderCandidates();
   renderAudit();
+  updateDraftGate();
 })();
