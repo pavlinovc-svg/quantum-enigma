@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="QUANTUM ENIGMA — Fires Vanguard Group instrument for choosing one reply. Audit-then-execute."
+    />
+    <title>QUANTUM ENIGMA — Fires Vanguard Group</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to instrument</a>
+    <div class="wrap">
+      <header class="mast">
+        <div class="mast-row">
+          <span>QE-01 · reply instrument</span>
+          <span>Fires Vanguard Group</span>
+        </div>
+        <h1 class="wordmark">QUANTUM ENIGMA</h1>
+        <p class="subhead">Fires Vanguard Group — audit-then-execute</p>
+        <p class="lede">
+          Incoming message is ciphertext. Candidate replies are basis states.
+          You do not speak until the state is measured. Collapse is a human yes
+          — never automatic, never sent.
+        </p>
+        <ul class="rules">
+          <li>Never invent facts, ranges, programs, or a cryptographically relevant quantum computer.</li>
+          <li>Replies are yours. Qubit count does not choose the words.</li>
+          <li>The collapsed output is ordinary language. The scoring panel may show energies and a histogram.</li>
+        </ul>
+      </header>
+
+      <main id="main">
+        <section class="stage" aria-labelledby="prep-h">
+          <div class="stage-head">
+            <div>
+              <div class="stage-k">01 prepare</div>
+              <h2 class="stage-h" id="prep-h">Restate the ask. Do not add facts.</h2>
+            </div>
+            <p class="stage-note">Ciphertext in. One-sentence ask out. Note what was not asked.</p>
+          </div>
+          <div class="stage-body">
+            <label class="field">
+              <span>Incoming message (ciphertext)</span>
+              <textarea
+                id="ciphertext"
+                maxlength="8000"
+                placeholder="Paste the message you have not answered yet."
+              ></textarea>
+            </label>
+            <div class="grid-3">
+              <label class="field">
+                <span>Relationship</span>
+                <input
+                  id="relationship"
+                  type="text"
+                  maxlength="80"
+                  placeholder="friend, manager, peer, stranger…"
+                />
+              </label>
+              <label class="field">
+                <span>Channel</span>
+                <select id="channel">
+                  <option value="command thread">command thread</option>
+                  <option value="friend DM">friend DM</option>
+                  <option value="public post">public post</option>
+                  <option value="group chat">group chat</option>
+                  <option value="email">email</option>
+                  <option value="other">other</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>QAOA depth</span>
+                <select id="qaoa-p">
+                  <option value="1">p = 1</option>
+                  <option value="2" selected>p = 2</option>
+                </select>
+              </label>
+            </div>
+            <div class="checks">
+              <label class="check">
+                <input id="friend-mode" type="checkbox" />
+                <span>Friend-thread mode — restraint 0.35, mission 0.05, remaining weights renormalized to 1.</span>
+              </label>
+              <label class="check">
+                <input id="asked-draft" type="checkbox" />
+                <span>Incoming asked for a draft or prompt. If unchecked, a candidate that reads like a draft cannot collapse.</span>
+              </label>
+            </div>
+            <div class="panel" id="restate-panel" aria-live="polite">
+              <h3>Restatement</h3>
+              <p id="restate-sentence">No incoming message yet — nothing to restate.</p>
+              <h3 style="margin-top: 0.85rem">Not asked</h3>
+              <ul id="unasked-list">
+                <li>Enter a message to list what was not asked. The list is a heuristic, not a claim about intent.</li>
+              </ul>
+            </div>
+            <p class="hint" id="pride-hint" hidden>
+              They showed work or pride. The reflect-only state is the intended
+              ground state unless truth forbids it.
+            </p>
+          </div>
+        </section>
+
+        <section class="stage" aria-labelledby="score-h">
+          <div class="stage-head">
+            <div>
+              <div class="stage-k">02 score · hamiltonian</div>
+              <h2 class="stage-h" id="score-h">Write 4–6 sendable replies. Score them.</h2>
+            </div>
+            <p class="stage-note">
+              One reflect-only. One no / wait / ignore. Energies are diagonal in this basis.
+            </p>
+          </div>
+          <div class="stage-body">
+            <p class="weights" id="weights-line"></p>
+            <div id="candidates" class="candidates"></div>
+            <div class="row-actions">
+              <button type="button" class="btn" id="add-candidate">Add candidate</button>
+              <span class="lock-note" id="slot-note">4 required. 6 maximum.</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="stage" aria-labelledby="int-h">
+          <div class="stage-head">
+            <div>
+              <div class="stage-k">03 interfere</div>
+              <h2 class="stage-h" id="int-h">Classical one-hot minimum. QAOA shots.</h2>
+            </div>
+            <p class="stage-note">Histogram is a distribution, not a personality.</p>
+          </div>
+          <div class="stage-body">
+            <ul class="audit" id="audit-list"></ul>
+            <div class="row-actions">
+              <button type="button" class="btn primary" id="run-interfere">
+                Run interference
+              </button>
+              <span class="lock-note" id="interfere-lock"></span>
+            </div>
+            <p class="disclaimer">No quantum advantage claimed.</p>
+            <div id="interfere-results" hidden>
+              <div class="panel">
+                <h3>Classical winner</h3>
+                <p id="classical-line"></p>
+              </div>
+              <p class="disagree" id="disagree-line" hidden></p>
+              <div>
+                <h3 class="stage-k" style="margin: 0 0 0.5rem">Shot histogram (replies)</h3>
+                <div class="hist" id="histogram"></div>
+              </div>
+              <div style="overflow-x: auto">
+                <table class="energy-table" id="energy-table">
+                  <thead>
+                    <tr>
+                      <th>Reply</th>
+                      <th>Eᵢ</th>
+                      <th>C(one-hot)</th>
+                      <th>Shots</th>
+                      <th>Tag</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="stage" aria-labelledby="meas-h">
+          <div class="stage-head">
+            <div>
+              <div class="stage-k">04 measure · execute</div>
+              <h2 class="stage-h" id="meas-h">Collapse only after a human yes.</h2>
+            </div>
+            <p class="stage-note">Output is one reply and one reason. Nothing is sent.</p>
+          </div>
+          <div class="stage-body">
+            <p class="lock-note" id="measure-lock">
+              Confirm stays disabled until audit is complete and interference has been run on the current scores.
+            </p>
+            <p class="err" id="measure-err" hidden></p>
+            <div class="row-actions">
+              <button type="button" class="btn primary" id="confirm-collapse" disabled>
+                Confirm / collapse
+              </button>
+              <button type="button" class="btn" id="copy-out" disabled>Copy</button>
+              <button type="button" class="btn" id="reset-out">Clear collapse</button>
+            </div>
+            <div class="collapse-out" id="collapse-box" hidden>
+              <div class="collapse-k">Collapsed reply — ordinary language only</div>
+              <p class="reply-text" id="out-reply"></p>
+              <p class="reason-text" id="out-reason"></p>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="foot">
+        Simulator only. No remote quantum backend. No LLM. MIT license.
+        Weights and QAOA live in your browser.
+      </footer>
+    </div>
+
+    <script src="js/heuristic.js"></script>
+    <script src="js/qubo-qaoa.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>
