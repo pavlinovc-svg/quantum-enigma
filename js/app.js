@@ -407,7 +407,7 @@
     state.result = result;
     state.dirty = false;
     renderInterfere();
-    updateMeasureGate();
+    renderAudit();
   }
 
   function bitLabel(i) {
